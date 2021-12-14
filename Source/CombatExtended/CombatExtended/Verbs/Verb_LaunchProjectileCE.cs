@@ -368,8 +368,10 @@ namespace CombatExtended
 
                         bool isPlayerFaction = (CasterPawn?.Faction ?? Caster.Faction) == Faction.OfPlayer;
 
+			bool isAccurate = (ShootingAccuracy >= 2.2f) | isTurretMannable;
 
-                        if ((ShootingAccuracy >= 2.2f) | isTurretMannable)
+
+                        if (isAccurate)
                         {
                             if (isPlayerFaction && flagTargetMode)
                             {
@@ -400,7 +402,7 @@ namespace CombatExtended
                         {
                             if ( ( (Victim?.kindDef?.RaceProps?.Humanlike ?? false) && AppropiateAimMode) )
                             {
-                                if ((ShootingAccuracy >= 2.2f) | isTurretMannable)
+                                if (isAccurate)
                                 {
                                     #region Finding highest protection apparel on legs, head and torso
 
