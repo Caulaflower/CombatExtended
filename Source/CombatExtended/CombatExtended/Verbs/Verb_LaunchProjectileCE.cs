@@ -362,46 +362,35 @@ namespace CombatExtended
                         targetRange.min = victimVert.BottomHeight;
                         targetRange.max = victimVert.MiddleHeight;
 
-                        bool AppropiateAimMode = CompFireModes?.CurrentAimMode != AimMode.SuppressFire;
-
-                        bool flagTargetMode = (CompFireModes?.targetMode != TargettingMode.automatic);
-
-                        bool isPlayerFaction = (CasterPawn?.Faction ?? Caster.Faction) == Faction.OfPlayer;
-
-
-                        if ((ShootingAccuracy >= 2.2f) | isTurretMannable)
+                        if (((ShootingAccuracy >= 2.2f) | isTurretMannable) &&
+			    CompFireModes?.CurrentAimMode != AimMode.SuppressFire)
                         {
-                            if (isPlayerFaction && flagTargetMode)
+                            if (((CasterPawn?.Faction ?? Caster.Faction) == Faction.OfPlayer) &&
+				(CompFireModes?.targetMode != TargettingMode.automatic))
                             {
-                                if (AppropiateAimMode)
-                                {
-                                    if (CompFireModes?.targetMode == TargettingMode.head)
-                                    {
-                                        // Aim upper thoraxic to head
-                                        targetRange.min = victimVert.MiddleHeight;
-                                        targetRange.max = victimVert.Max;
-                                    }
-                                    else if (CompFireModes?.targetMode == TargettingMode.legs)
-                                    {
-                                        // Aim legs to lower abdomen
-                                        targetRange.min = victimVert.Min;
-                                        targetRange.max = victimVert.BottomHeight;
-                                    }
-                                    else
-                                    {
-                                        // Aim center mass
-                                        targetRange.min = victimVert.BottomHeight;
-                                        targetRange.max = victimVert.MiddleHeight;
-                                    }
+				if (CompFireModes?.targetMode == TargettingMode.head)
+				{
+				    // Aim upper thoraxic to head
+				    targetRange.min = victimVert.MiddleHeight;
+				    targetRange.max = victimVert.Max;
+				}
+				else if (CompFireModes?.targetMode == TargettingMode.legs)
+				{
+				    // Aim legs to lower abdomen
+				    targetRange.min = victimVert.Min;
+				    targetRange.max = victimVert.BottomHeight;
+				}
+				else
+				{
+				    // Aim center mass
+				    targetRange.min = victimVert.BottomHeight;
+				    targetRange.max = victimVert.MiddleHeight;
                                 }
                             }
-                        }
-                        if (!flagTargetMode | !isPlayerFaction)
-                        {
-                            if ( ( (Victim?.kindDef?.RaceProps?.Humanlike ?? false) && AppropiateAimMode) )
-                            {
-                                if ((ShootingAccuracy >= 2.2f) | isTurretMannable)
-                                {
+			    else
+			    {
+				if (Victim?.kindDef?.RaceProps?.Humanlike ?? false)
+				{
                                     #region Finding highest protection apparel on legs, head and torso
 
                                     Func<Apparel, float> funcArmor = x => (x?.GetStatValue(StatDefOf.ArmorRating_Sharp) ?? 0.1f);
@@ -473,10 +462,16 @@ namespace CombatExtended
 
 
                                 }
+				else // Shooting at non-humanlike, go for headshots
+				{
+				    targetRange.min = victimVert.MiddleHeight;
+				    targetRange.max = victimVert.Max;
+				}
                             }
 
                           
                         }
+                        
 
                     }
                     targetHeight = VerbPropsCE.ignorePartialLoSBlocker ? 0 : targetRange.Average;
