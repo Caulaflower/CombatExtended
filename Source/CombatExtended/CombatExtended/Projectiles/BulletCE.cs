@@ -16,6 +16,12 @@ namespace CombatExtended
     {
         private static RulePackDef cookOffDamageEvent = null;
 
+        //set to real value on impact
+        public float distanceTravelled;
+
+        //set in launch, used for true determining distance
+        public VerbPropertiesCE verbProps;
+
         public static RulePackDef CookOff => cookOffDamageEvent ?? (cookOffDamageEvent = DefDatabase<RulePackDef>.GetNamed("DamageEvent_CookOff"));
         public virtual float DamageAmount
         {
@@ -49,6 +55,12 @@ namespace CombatExtended
                     );
             if (!(launcher is AmmoThing))
                 Find.BattleLog.Add(logEntry);
+        }
+
+        public void Launch(Thing launcher, Vector2 origin, float shotAngle, float shotRotation, float shotHeight = 0, float shotSpeed = -1, Thing equipment = null, VerbPropertiesCE propsCE = null)
+        {
+            verbProps = propsCE;
+            base.Launch(launcher, origin, shotAngle, shotRotation, shotHeight, shotSpeed * propsCE.barrelLength.min, equipment);
         }
 
         public override void Impact(Thing hitThing)
@@ -102,8 +114,19 @@ namespace CombatExtended
 
                 try
                 {
+                    if (hitThing is Pawn p)
+                    {
+                        if (p.TryGetComp<ProjComp>() != null)
+                        {
+                            p.TryGetComp<ProjComp>().bullet = this;
+                        }
+                    }
+
                     // Apply primary damage
-                    hitThing.TakeDamage(dinfo).AssociateWithLog(logEntry);
+                    var damageWorker = hitThing.TakeDamage(dinfo);
+                   
+
+                    damageWorker.AssociateWithLog(logEntry);
 
                     // Apply secondary to non-pawns (pawn secondary damage is handled in the damage worker)
                     // The !(hitThing is Pawn) already excludes non-pawn cookoff projectiles from being logged, as logEntry == null
@@ -135,17 +158,18 @@ namespace CombatExtended
                 //Only display a dirt/water hit for projectiles with a dropshadow
                 if (base.castShadow)
                 {
-                    Rand.PushState();
                     FleckMaker.Static(this.ExactPosition, map, FleckDefOf.ShotHit_Dirt, 1f);
                     if (base.Position.GetTerrain(map).takeSplashes)
                     {
                         FleckMaker.WaterSplash(this.ExactPosition, map, Mathf.Sqrt(def.projectile.GetDamageAmount(this.launcher)) * 1f, 4f);
                     }
-                    Rand.PopState();
                 }
                 base.Impact(null);
+
             }
             NotifyImpact(hitThing, map, Position);
+
+            distanceTravelled = OriginIV3.DistanceTo(hitThing.Position) + (this.verbProps?.barrelLength.max ?? 0f);
         }
 
         /* Mostly imported wholesale from vanilla Bullet class,
@@ -186,6 +210,9 @@ namespace CombatExtended
          * Current users are SmokepopBelt and BroadshieldPack, requiring bullet.def and bullet.Launcher.
          */
 
+        // todo: remove when moved to publicised assembly
+        private static readonly FieldInfo bulletLauncher = typeof(Bullet).GetField("launcher", BindingFlags.Instance | BindingFlags.NonPublic);
+
         private Bullet GenerateVanillaBullet()
         {
             var bullet = new Bullet
@@ -194,7 +221,7 @@ namespace CombatExtended
                 intendedTarget = this.intendedTargetThing,
             };
 
-            bullet.launcher = launcher;
+            bulletLauncher.SetValue(bullet, this.launcher);  //Bad for performance, refactor if a more efficient solution is possible
             return bullet;
         }
 
