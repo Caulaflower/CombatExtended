@@ -148,6 +148,29 @@
 			<armorPenetrationSharp>6</armorPenetrationSharp>
 			<armorPenetrationBlunt>34.18</armorPenetrationBlunt>
 		</projectile>
+		<modExtensions>
+			<li Class="CombatExtended.ExtendedBulletProps">
+				<fragmentationChance>0.0825</fragmentationChance>
+				<fragmentCountRange>2~4</fragmentCountRange>
+				<!-- base damage mults not full values -->
+				<fragmentDamageRange>0.5~0.75</fragmentDamageRange>
+				<yawChance>0.75</yawChance>
+				<yawDamage>0.5~0.5</yawDamage>
+				<tumbleChance>0.5</tumbleChance>
+				<tumbleDamage>1~1.5</tumbleDamage>
+				<distanceFragMultCurve>
+					<points>
+						<!-- x is distance, y is multiplier -->
+						<li>0, 2</li>
+						<li>10, 1</li>
+						<li>15, 0.8</li>
+						<li>20, 0.7</li>
+						<li>25, 0.6</li>
+						<li>30, 0.4</li>
+					</points>
+				</distanceFragMultCurve>
+			</li>
+		</modExtensions>
 	</ThingDef>
 
 	<ThingDef ParentName="Base556x45mmNATOBullet">
@@ -158,6 +181,32 @@
 			<armorPenetrationSharp>12</armorPenetrationSharp>
 			<armorPenetrationBlunt>34.18</armorPenetrationBlunt>
 		</projectile>
+		<modExtensions>
+			<li Class="CombatExtended.ExtendedBulletProps">
+				<fragmentationChance>0.025</fragmentationChance>
+				<fragmentCountRange>2~3</fragmentCountRange>
+				<!-- base damage mults not full values -->
+				<fragmentDamageRange>0.5~0.75</fragmentDamageRange>
+				<!-- lower than FMJ but not yeeted to the ground like frag chance in AP -->
+				<yawChance>0.55</yawChance>
+				<yawDamage>0.125~0.25</yawDamage>
+				<!-- tumble chance might as well be same as on FMJ, except for 5.45 maybe if we consider 7N6 FMJ. Which it is, just like M855 is FMJ-->
+				<tumbleChance>0.5</tumbleChance>
+				<!-- slighlty less tumble damage because of generally slightly lower mass and size of the projectile -->
+				<tumbleDamage>1~1.35</tumbleDamage>
+				<distanceFragMultCurve>
+					<points>
+						<!-- x is distance, y is multiplier -->
+						<li>0, 1.5</li>
+						<li>10, 0.8</li>
+						<li>15, 0.6</li>
+						<li>20, 0.5</li>
+						<li>25, 0.4</li>
+						<li>30, 0.2</li>
+					</points>
+				</distanceFragMultCurve>
+			</li>
+		</modExtensions>
 	</ThingDef>
 
 	<ThingDef ParentName="Base556x45mmNATOBullet">
@@ -207,7 +256,7 @@
 		<label>5.56mm NATO bullet (Sabot)</label>
 		<projectile Class="CombatExtended.ProjectilePropertiesCE">
 		  <damageAmountBase>7</damageAmountBase>
-		  <armorPenetrationSharp>21</armorPenetrationSharp>
+		  <armorPenetrationSharp>18</armorPenetrationSharp>
 		  <armorPenetrationBlunt>44.18</armorPenetrationBlunt>
 		  <speed>277</speed>
 		</projectile>
